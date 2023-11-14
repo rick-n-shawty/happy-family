@@ -1,3 +1,4 @@
+package logic;
 import assets.MyList;
 
 import java.util.HashMap;
@@ -6,7 +7,7 @@ import assets.Const;
 public class CardDeck {
 
     private Random random = new Random();
-    // HashMap<String, String> namesBucket;
+    private HashMap<String, Integer> allCards = new HashMap<>(); // helps to check if the requested card exists 
     private final String[] faces = {
         "Mr", 
         "Mrs", 
@@ -30,15 +31,15 @@ public class CardDeck {
     public CardDeck(){
         deck = new MyList<>(Const.NUMBER_OF_CARDS);
         initializeDeck();
-        // namesBucket = new HashMap<>();
     }
     public void initializeDeck(){
         int mainIndex = 0;
         for(int i = 0; i < faces.length; i++){
             for(int j = 0; j < families.length; j++){
             
-                Card card = new Card(faces[i], families[j]); 
-                // namesBucket.put(faces[i] + families[j], faces[i] + families[j]);
+                Card card = new Card(faces[i], families[j]);
+                String cardName = card.toString().toLowerCase().replaceAll("[,\\s]", ""); 
+                allCards.put(cardName, 1);
                 deck.add(mainIndex, card); 
                 mainIndex++; 
             }
@@ -79,7 +80,7 @@ public class CardDeck {
         return this.deck.size();
     }
     
-    // public boolean isCardValid(String cardName){
-        // return namesBucket.containsValue(cardName); 
-    // }
+    public boolean isValidCard(String cardName){
+        return allCards.containsKey(cardName);
+    }
 }

@@ -1,21 +1,43 @@
+package logic;
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import javax.swing.JPanel;
+
+import GUI.PlayerPanel;
 import assets.Const;
+import java.awt.Point;
 public class Player {
     String reset = "\u001B[0m";
     String green = "\u001B[32m"; 
     String pink = "\u001B[35m";
     private boolean isBot; 
+    private Color color;
     private int id;
+    private int xPosition;
+    private int yPosition;
+    private PlayerPanel panel;
     private HashMap<String, Integer>familyStackCount;
     private HashMap<String, Card> hand;
-    public Player(boolean isBot, int playerId){
+    private String name;
+    public Player(boolean isBot, int playerId, String playerName){
         this.isBot = isBot;
         this.id = playerId;
         familyStackCount = new HashMap<>();
         hand = new HashMap<>(); 
+        this.name = playerName;
     }
     // GETTERS 
+    public String[] getHand(){
+        String [] cardsArray = new String[hand.size()];
+        int i = 0;
+        for(String key : this.hand.keySet()){
+            cardsArray[i] = key;
+            i++;
+        }
+        return cardsArray;
+    }
     public String chooseCard(){
         // find the family that is almost completed
         int count = 0;  
@@ -48,16 +70,30 @@ public class Player {
         }
         return count;
     }
+    public String getName(){
+        return this.name;
+    }
+    public String[] getCollectedFamiliesNames(){
+        String[] arr = new String[familyStackCount.size()];
+        int i = 0; 
+        for(String key : familyStackCount.keySet()){
+            if(familyStackCount.get(key) == 4){
+                arr[i] = key; 
+                i++;
+            }
+        }
+        return arr; 
+    }
     public int getCardsNum(){
         return this.hand.size();
     }
     public int getId(){
         return this.id; 
     }
-    public boolean hasFamily(String familyName){
+    public boolean hasFamily(String cardName){
         // checks if player has the card of a specifc family in their hand 
         for(String key : this.hand.keySet()){
-            if(this.hand.get(key).getFamily().equals(familyName)){
+            if(cardName.contains(this.hand.get(key).getFamily())){
                 return true;
             }
         }
@@ -94,6 +130,11 @@ public class Player {
             this.familyStackCount.put(card.getFamily(), 1);
         }
         if(this.familyStackCount.get(card.getFamily()) == Const.faces.length){
+            // if user collected a full family, remove that family cards from the hand 
+            for(int i = 0; i < Const.faces.length; i++){
+                String cardName = Const.faces[i] + " " + card.getFamily();
+                hand.remove(cardName);
+            }
             System.out.println(pink + "HAPPY FAMILY" + reset);
         }
     }
@@ -106,5 +147,27 @@ public class Player {
             System.out.println(row);
             row = "";
         }
+    }
+
+
+    // --------- 
+    public void setPanel(PlayerPanel botPanel){
+        this.panel = botPanel; 
+    }
+
+    public PlayerPanel getPlayerPanel(){
+        return this.panel;
+    }
+    // get main player panel
+
+    // get location of a panel through the Player 
+    public Point getLocation(){
+        return this.panel.getCardPositon();
+    }
+    public void setColor(Color color){
+        this.color = color;
+    }
+    public Color getColor(){
+        return this.color;
     }
 }

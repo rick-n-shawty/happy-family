@@ -1,3 +1,4 @@
+package logic;
 public class Card {
     private String family; 
     private String face; 
