@@ -7,9 +7,14 @@ public class Card {
         this.family = cardFam; 
     }
     public String toString(){
-        return this.face + " " + this.family;
+        String name = this.face + " " + this.family; 
+        String finalName = name.toLowerCase().replaceAll("[,\\s]", "");
+        return finalName;
     }
     public String getFamily(){
         return this.family;
+    }
+    public String getFace(){
+        return this.face; 
     }
 }

@@ -100,11 +100,13 @@ public class Player {
         return false;
     }
     public boolean hasCard(String cardName){
-        return this.hand.containsKey(cardName);
+        String finalName = cardName.toLowerCase().replaceAll("[,\\s]", ""); 
+        return this.hand.containsKey(finalName);
     }
     public Card getCard(String cardName){
+        String finalName = cardName.toLowerCase().replaceAll("[,\\s]", "");
         for(String key : hand.keySet()){
-            if(key.equals(cardName)){
+            if(key.equals(finalName)){
                 Card temp = this.hand.get(key); 
                 this.hand.remove(key); 
                 int count = this.familyStackCount.get(temp.getFamily());

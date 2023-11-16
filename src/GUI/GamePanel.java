@@ -7,6 +7,7 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import logic.CardDeck;
+import logic.Game;
 import logic.Player;
 import assets.Const;
 import java.awt.BorderLayout;
@@ -24,12 +25,14 @@ import GUI.components.InputWindow;
 import GUI.components.MyIcon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 import javax.swing.Timer;
 import javax.swing.text.PlainDocument;
 
 public class GamePanel extends JPanel implements ActionListener {
     private final int PANEL_WIDTH = 850;
     private final int PANEL_HEIGHT = 650;
+    private final int TIMER_DELAY = 1;
     JPanel topPanel = new JPanel();
     InputWindow inputWindow = new InputWindow();
     JPanel centerPanel = new JPanel();
@@ -46,9 +49,15 @@ public class GamePanel extends JPanel implements ActionListener {
     int y = Const.CARD_DECK_Y;
     double destinationX = 0;
     double destinationY = 0;
+
+    Player animatedPlayer; 
+
+    private String playerNameInput; 
+    private String cardNameInput; 
+    
     MyIcon cardBackImg = new MyIcon("/Users/sultkh/Desktop/HappyFam/res/images/Back-card.png");
     public GamePanel(Player[] players, CardDeck deck) {
-        timer = new Timer(1, this);
+        timer = new Timer(TIMER_DELAY, this);
         this.players = players;
         this.cardDeck = deck;
         this.setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
@@ -80,14 +89,19 @@ public class GamePanel extends JPanel implements ActionListener {
         deckCountLabel.setVisible(true);
         deckCountLabel.setOpaque(true);
         deckCountLabel.setPreferredSize(new Dimension(150, 50));
-
+        
         rightCenter.add(deckIconLabel, BorderLayout.NORTH);
         rightCenter.add(deckCountLabel, BorderLayout.SOUTH);
-
+        
         centerPanel.add(leftCenter);
         centerPanel.add(rightCenter);
-
-
+        
+        inputWindow.submitBtn.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e){
+                playerNameInput = inputWindow.playerName.getText();
+                cardNameInput = inputWindow.cardName.getText();
+            }
+        });
         createPanels();
         this.add(topPanel, BorderLayout.NORTH);
         this.add(centerPanel, BorderLayout.CENTER);
@@ -105,8 +119,10 @@ public class GamePanel extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         // System.out.println("Destination: " + destinationX + " " + destinationY);
         // System.out.println("Origin: " + x + " " + y);
+        updateCoordinates();
         double deltaX = Math.round(x - destinationX);
         double deltaY = Math.round(y - destinationY);
+        // System.out.println(destinationX + " " + destinationY);
         // System.out.println("Deltas: " + deltaX + " " + deltaY);
         if(deltaX > 0){
             x -= xVelocity;
@@ -129,16 +145,18 @@ public class GamePanel extends JPanel implements ActionListener {
     }
 
     public void dealCard(Player player) {
+        animatedPlayer = player; 
         Point cardLocation = player.getLocation();
-        destinationX = cardLocation.getX();
-        destinationY = cardLocation.getY();
+        SwingUtilities.convertPointFromScreen(cardLocation, this);
+        destinationX = cardLocation.getX() - this.getLocationOnScreen().x;
+        destinationY = cardLocation.getY() - this.getLocationOnScreen().y;
         timer.start();            
     }
 
     public boolean isTimerRunning(){
         return timer.isRunning();
     }
-    public void display(boolean isInput) {
+    public void display() { // main display method 
         deckCountLabel.setText("");
         deckCountLabel.setText("Number of cards: " + cardDeck.getSize());
         playerPanel.attachCards();
@@ -147,20 +165,21 @@ public class GamePanel extends JPanel implements ActionListener {
                 players[i].getPlayerPanel().updateBotInfo();
             }
         }
-        if(isInput){
-            leftCenter.removeAll();
-            leftCenter.add(inputWindow);
-        }else{
-            leftCenter.remove(inputWindow);
-        }
         this.revalidate();
         this.repaint();
     }
-    public boolean isInputSubmitted(){
-        return inputWindow.isSubmitted();
-    }
-    public String[] getInput(){
-        return inputWindow.getInput();
+    public String[] displayInput(){ // appends inputWindow and waits for the input 
+        display();
+        leftCenter.removeAll();
+        leftCenter.add(inputWindow);
+        String [] arr = new String[2];
+        while(arr[0] == null || arr[1] == null){
+            arr[0] = playerNameInput; 
+            arr[1] = cardNameInput;
+        }
+        playerNameInput = null;
+        cardNameInput = null;
+        return arr;
     }
     // Creates player-panels 
     public void createPanels() {
@@ -175,6 +194,14 @@ public class GamePanel extends JPanel implements ActionListener {
                 players[i].setPanel(playerPanel);
             }
         }
+    }
+
+
+    public void updateCoordinates(){
+        Point cardLocation = animatedPlayer.getLocation();
+        SwingUtilities.convertPointFromScreen(cardLocation, this);
+        destinationX = cardLocation.getX() - this.getLocationOnScreen().x;
+        destinationY = cardLocation.getY() - this.getLocationOnScreen().y;
     }
 
 }

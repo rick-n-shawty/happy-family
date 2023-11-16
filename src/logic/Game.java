@@ -22,10 +22,9 @@ public class Game {
     private Random random = new Random();
     String reset = "\u001B[0m";
     String red = "\u001B[31m";   
-    String green = "\u001B[32m"; 
-    String yellow = "\u001B[33m"; 
     private MyFrame frame;
-    private GamePanel gamePanel; 
+    private GamePanel gamePanel;
+    private Player askedPlayer;
     public Game(){
         players = new Player[4];
         cardDeck = new CardDeck();
@@ -41,43 +40,42 @@ public class Game {
     public void start(){
         cardDeck.shuffleDeck();
         dealCards();
-        gamePanel.display(false);
+        gamePanel.display();
         String playerToAsk; // id of the player who will be asked
         String chosenCard;
-        Player askedPlayer;
         Player currentPlayer;
         Card askedCard;
         while(!isGameOver){
-            // if(gameOver()){ // check the state of the game
-            //     System.out.println("GAME OVER");
-            //     break;
-            // }
-
             if(CurrentPlayerId == 0){
                 currentPlayer = players[CurrentPlayerId]; 
 
                 // Choose player and card 
-                System.out.println("run");
-                gamePanel.display(true);
-                String[] inputArr = gamePanel.getInput();
-                while(!gamePanel.isInputSubmitted()){
-                    // wait for the player input 
-                    // System.out.println("waiting for the input");
-                    inputArr = gamePanel.getInput();
-                }
-                // get and destructer the actual input 
-                playerToAsk  = inputArr[0]; 
-                chosenCard = inputArr[1];  
+                String[] res = gamePanel.displayInput();
+                playerToAsk = res[0];
+                chosenCard = res[1]; 
                 // validate the input 
-                boolean isAllowed = isInputValid(currentPlayer, playerToAsk, chosenCard);
-                if(!isAllowed){
+                boolean canProceed = isInputValid(currentPlayer, playerToAsk, chosenCard);
+
+                if(canProceed == false){
+                    // display the error message 
                     continue;
                 }
+                // check if player being asked has the card 
+                if(askedPlayer.hasCard(chosenCard)){
+                    // if they do, take their card with the animation 
+                    askedCard = askedPlayer.getCard(chosenCard);
+                    currentPlayer.setCard(askedCard);
+                }else{
 
-                System.out.println("Player: " + playerToAsk + " Card: " + chosenCard);
-
-                // increment CurrentPlayerId
+                    // if they dont,take the card from the deck 
+                }
                 CurrentPlayerId++;
+
+
+
+               
+
+                // CurrentPlayerId++;
             }else{
                
                 // sleep(2000);
@@ -102,10 +100,12 @@ public class Game {
         for(int i = 0; i < players.length; i++){
             String name = players[i].getName().toLowerCase().replaceAll("[,\\s]", "");
             if(name.equals(finalPlayerName)){
+                askedPlayer = players[i];
                 return true;
             }
         }
         System.out.println("player does not exist");
+        askedPlayer = null;
         return false;
     }
     public Player determineWinner(){
@@ -150,22 +150,16 @@ public class Game {
         // deal 6 cards to each player 
         for(int i = 0; i < 6; i++){
             for(int j = 0; j < players.length; j++){
-                // gamePanel.dealCard(players[j]);
-                // while (gamePanel.isTimerRunning()) {
-                //     // waits until animation is finished 
-                //     // System.out.println("waiting..." + gamePanel.isTimerRunning());
-                // }
+                gamePanel.dealCard(players[j]);
+                while (gamePanel.isTimerRunning()) {
+                    // waits until animation is finished 
+                    // System.out.println("waiting..." + gamePanel.isTimerRunning());
+                }
                 Card card = cardDeck.popTheCard();
                 players[j].setCard(card);
+                gamePanel.revalidate();
                 gamePanel.repaint();
             }
         }
     }
-    public void sleep(int time){
-        try{
-            Thread.sleep(time);
-        }catch(Exception e){}
-    }
-
- 
 }

@@ -10,18 +10,18 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 public class InputWindow extends JPanel implements ActionListener{
-    private JTextField playerName; 
-    private JTextField cardName;
+    public JTextField playerName; 
+    public JTextField cardName;
     private String name; 
     private String card;
-    private JButton button; 
+    public JButton submitBtn; 
     private boolean isClicked = false; 
     public InputWindow(){
         this.setVisible(true);
         playerName = new JTextField(20);
         cardName = new JTextField(20);
-        button = new JButton("submit");
-        button.addActionListener(this);
+        submitBtn = new JButton("submit");
+        submitBtn.addActionListener(this);
         JLabel playerNameLabel = new JLabel("What player do you want to ask?");
         JLabel cardNameLabel = new JLabel("What card do you want?");
 
@@ -30,25 +30,15 @@ public class InputWindow extends JPanel implements ActionListener{
         this.add(playerName);
         this.add(cardNameLabel);
         this.add(cardName);
-        this.add(button);
+        this.add(submitBtn);
     }
     @Override
     public void actionPerformed(ActionEvent e) {
+        // System.out.println("Button was clicked");
         // System.out.println(playerName.getText());
         // System.out.println(cardName.getText());
-        name = playerName.getText();
-        card = cardName.getText();
-        this.isClicked = true; 
-    }
-    public boolean isSubmitted(){
-        return isClicked;
-    }
-    public String[] getInput(){
-        isClicked = false;
-        String [] arr = {name, card};
-        // System.out.println("inputWindow: [Player, card]");
-        name = "";
-        card = "";
-        return arr; 
+        // name = playerName.getText();
+        // card = cardName.getText();
+        // this.isClicked = true; 
     }
 }
