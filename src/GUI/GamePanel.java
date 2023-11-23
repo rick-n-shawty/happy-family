@@ -1,4 +1,6 @@
 package GUI;
+
+import javax.swing.Action;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -17,8 +19,11 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Point;
 import GUI.components.InputWindow;
+import GUI.components.LuckyDip;
 import GUI.components.BotDialogWindow;
+import GUI.components.EndGameWindow;
 import GUI.components.MyIcon;
+import GUI.components.PlayerDialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.Timer;
@@ -34,7 +39,7 @@ public class GamePanel extends JPanel implements ActionListener {
     private JLabel deckIconLabel = new JLabel();
     private JLabel deckCountLabel = new JLabel("Number of cards: ");
     private PlayerPanel playerPanel;
-    // ANIMATION VARIABLES 
+    // ANIMATION VARIABLES
     private Timer timer;
     private final int TIMER_DELAY = 1;
     private int xVelocity = 1;
@@ -43,12 +48,26 @@ public class GamePanel extends JPanel implements ActionListener {
     private int y = Const.CARD_DECK_Y;
     private double destinationX = 0;
     private double destinationY = 0;
-    // POP-UP WINDOWS 
+    // POP-UP WINDOWS
     private InputWindow inputWindow = new InputWindow();
     private BotDialogWindow botDialogWindow = new BotDialogWindow();
-    private String playerNameInput; 
-    private String cardNameInput; 
+    private PlayerDialog playerDialogWindow = new PlayerDialog();
+    private LuckyDip luckyDipWindow = new LuckyDip();
+    private EndGameWindow endGameWindow = new EndGameWindow();
+
+    private boolean isReplyYes;
+    private boolean isReplyClicked = false;
+    private boolean isInputEntered = false; 
+    private boolean playAgain;
+
+    private String playerNameInput;
+    private String cardNameInput;
     private MyIcon cardBackImg = new MyIcon("/Users/sultkh/Desktop/HappyFam/res/images/Back-card.png");
+
+    // LOCKS
+    private static final Object lock = new Object();
+    private static final Object inputLock = new Object();
+    private static final Object endLock = new Object();
     public GamePanel(Player[] players, CardDeck deck) {
         timer = new Timer(TIMER_DELAY, this);
         this.players = players;
@@ -82,19 +101,60 @@ public class GamePanel extends JPanel implements ActionListener {
         deckCountLabel.setVisible(true);
         deckCountLabel.setOpaque(true);
         deckCountLabel.setPreferredSize(new Dimension(150, 50));
-        
+
         rightCenter.add(deckIconLabel, BorderLayout.NORTH);
         rightCenter.add(deckCountLabel, BorderLayout.SOUTH);
-        
+
         centerPanel.add(leftCenter);
         centerPanel.add(rightCenter);
-        
+        // BUTTON LISTENERS
         inputWindow.submitBtn.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e){
+            public void actionPerformed(ActionEvent e) {
                 playerNameInput = inputWindow.playerName.getText();
                 cardNameInput = inputWindow.cardName.getText();
+                synchronized(inputLock){
+                    isInputEntered = true;
+                    inputLock.notify();
+                }
             }
-        });            
+        });
+        playerDialogWindow.getYesBtn().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("YES");
+                isReplyYes = true;
+                synchronized(lock){
+                    isReplyClicked = true; 
+                    lock.notify();
+                }
+            }
+        });
+        playerDialogWindow.getNoBtn().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("NO");
+                isReplyYes = false;
+                synchronized(lock){
+                    isReplyClicked = true;
+                    lock.notify();
+                }
+            }
+        });
+        endGameWindow.getYesBtn().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e){
+                playAgain = true;
+                synchronized(endLock){
+                    endLock.notify();
+                }
+            }
+        });
+        endGameWindow.getNoBtn().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e){
+                playAgain = false;
+                synchronized(endLock){
+                    endLock.notify();
+                }
+            }
+        });
+
         createPanels();
         this.add(topPanel, BorderLayout.NORTH);
         this.add(centerPanel, BorderLayout.CENTER);
@@ -111,51 +171,46 @@ public class GamePanel extends JPanel implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        // System.out.println("Destination: " + destinationX + " " + destinationY);
-        // System.out.println("Origin: " + x + " " + y);
-    
         double deltaX = Math.round(x - destinationX);
         double deltaY = Math.round(y - destinationY);
-        // System.out.println(destinationX + " " + destinationY);
-        // System.out.println("Deltas: " + deltaX + " " + deltaY);
-        if(deltaX > 0){
+        if (deltaX > 0) {
             x -= xVelocity;
-        }else if(deltaX < 0){
+        } else if (deltaX < 0) {
             x += xVelocity;
-        }else if(deltaX == 0){
-            x = (int)destinationX;
+        } else if (deltaX == 0) {
+            x = (int) destinationX;
         }
-        if(deltaX == 0 && deltaY > 0){
-            y -= yVelocity; 
-        }else if(deltaX == 0 && deltaY < 0){
-            y += yVelocity; 
-        }else if(deltaX == 0 && deltaY == 0){
+        if (deltaX == 0 && deltaY > 0) {
+            y -= yVelocity;
+        } else if (deltaX == 0 && deltaY < 0) {
+            y += yVelocity;
+        } else if (deltaX == 0 && deltaY == 0) {
             y = (int) destinationY;
-            timer.stop(); 
             x = Const.CARD_DECK_X;
             y = Const.CARD_DECK_Y;
+            timer.stop();
         }
         this.repaint();
     }
 
     public void dealCard(Player originPlayer, Player destPlayer) {
-        Point origin = originPlayer.getLocation(); 
+        Point origin = originPlayer.getLocation();
         Point dest = destPlayer.getLocation();
 
-        if(originPlayer.isBot() && destPlayer.isBot()){
+        if (originPlayer.isBot() && destPlayer.isBot()) {
             origin = SwingUtilities.convertPoint(originPlayer.getPlayerPanel(), origin, topPanel);
             origin = SwingUtilities.convertPoint(topPanel, origin, this);
             dest = SwingUtilities.convertPoint(destPlayer.getPlayerPanel(), dest, topPanel);
             dest = SwingUtilities.convertPoint(topPanel, dest, this);
-        }else{
-            if(originPlayer.isBot()){
+        } else {
+            if (originPlayer.isBot()) {
                 // main player is the destPLayer
                 origin = SwingUtilities.convertPoint(originPlayer.getPlayerPanel(), origin, topPanel);
                 origin = SwingUtilities.convertPoint(topPanel, origin, this);
                 dest = SwingUtilities.convertPoint(destPlayer.getPlayerPanel(), dest, playerPanel);
                 dest = SwingUtilities.convertPoint(playerPanel, dest, this);
-            }else{           
-                // main player is the originPLayer     
+            } else {
+                // main player is the originPLayer
                 origin = SwingUtilities.convertPoint(originPlayer.getPlayerPanel(), origin, playerPanel);
                 origin = SwingUtilities.convertPoint(playerPanel, origin, this);
                 // System.out.println("HAHAHHAHA" + originPlayer.isBot());
@@ -164,61 +219,157 @@ public class GamePanel extends JPanel implements ActionListener {
             }
         }
 
-
         x = origin.x;
-        y = origin.y; 
-        destinationX = dest.x; 
+        y = origin.y;
+        destinationX = dest.x;
         destinationY = dest.y;
 
-        timer.start();            
+        timer.start();
     }
-    public void dealCard(Player player){
-        x = Const.CARD_DECK_X; 
-        y = Const.CARD_DECK_Y; 
+
+    public void dealCard(Player player) {
+        x = Const.CARD_DECK_X;
+        y = Const.CARD_DECK_Y;
         Point location = player.getLocation();
-        location = SwingUtilities.convertPoint(player.getPlayerPanel(), location, topPanel);        
+        location = SwingUtilities.convertPoint(player.getPlayerPanel(), location, topPanel);
         location = SwingUtilities.convertPoint(topPanel, location, this);
-        destinationX = location.getX(); 
+        destinationX = location.getX();
         destinationY = location.getY();
         timer.start();
     }
 
-    public boolean isTimerRunning(){
+    public boolean isTimerRunning() {
         return timer.isRunning();
     }
-    public void display() { // main display method 
+
+    // DISPLAY FUNCTIONS
+    public void display() { // main display method
         leftCenter.removeAll();
         deckCountLabel.setText("");
         deckCountLabel.setText("Number of cards: " + cardDeck.getSize());
         playerPanel.attachCards();
-        for(int i = 0; i < players.length; i++){
-            if(players[i].isBot()){
+        for (int i = 0; i < players.length; i++) {
+            if (players[i].isBot()) {
                 players[i].getPlayerPanel().updateBotInfo();
             }
         }
         this.revalidate();
         this.repaint();
     }
-    public String[] displayInput(){
-        // appends inputWindow and waits for the input 
+
+    public String[] displayInput() {
+        // appends inputWindow and waits for the input
         display();
         leftCenter.add(inputWindow);
-        String [] arr = new String[2];
-        playerNameInput = null;
-        cardNameInput = null;
-        while(arr[0] == null || arr[1] == null){
-            arr[0] = playerNameInput; 
-            arr[1] = cardNameInput;
+        String[] arr = new String[2];
+        synchronized(inputLock){ // locks the thread to get the input 
+            try{
+                inputLock.wait();
+            }catch(Exception e){}
         }
-        playerNameInput = null;
-        cardNameInput = null;
+        arr[0] = playerNameInput;
+        arr[1] = cardNameInput;
         return arr;
     }
-    public void displayError(String errMsg){
+
+    public void displayError(String errMsg) {
         display();
         JOptionPane.showMessageDialog(this, errMsg, "Error", JOptionPane.ERROR_MESSAGE);
     }
-    // Creates player-panels 
+
+    public void displayHappyFamily(Color color){
+        leftCenter.removeAll();
+        luckyDipWindow.setLabelColor(color);
+        luckyDipWindow.setTextLabel("Happy Family!!!");
+        leftCenter.add(luckyDipWindow);
+        this.repaint();
+        sleep(3500);
+
+    }
+    public void displayBotInput(Player mainPlayer, Player askedPlayer, String card) {
+        leftCenter.removeAll();
+        boolean isBot = askedPlayer.isBot();
+        boolean hasCard = askedPlayer.hasCard(card);
+        String mainName = mainPlayer.getName().toUpperCase();
+        String askedName = askedPlayer.getName().toUpperCase();
+        String question;
+        Color mainColor = mainPlayer.getColor();
+        botDialogWindow.clear();
+        playerDialogWindow.clear();
+        if (isBot) {
+            // bot is asking another bot
+            leftCenter.add(botDialogWindow);
+            question = mainName + ": Hey " + askedPlayer.getName() + ", do you have " + card + " ???";
+            botDialogWindow.setQuestion(question, mainColor);
+            botDialogWindow.setAnswer("", null);
+            this.repaint();
+            sleep(4000);
+            String answer = "";
+            if (hasCard) {
+                answer = askedName + ": Yeah, I have it";
+            } else {
+                answer = askedName + ": No, I do not have it...";
+            }
+            botDialogWindow.setAnswer(answer, askedPlayer.getColor());
+            sleep(4000);
+            this.repaint();
+        } else {
+            // bot is asking user
+            question = mainName + ": Hey, Do you have " + card + " ???";
+            playerDialogWindow.setTitleText(question, mainColor);
+            playerDialogWindow.showBtns();
+            leftCenter.add(playerDialogWindow);
+            
+            synchronized(lock){ // locks the thread to get the input 
+                try{
+                    lock.wait();
+                }catch(Exception e){}
+            }
+            
+            String msg = "";
+            if ((isReplyYes && hasCard) || (!isReplyYes && !hasCard)) {
+                msg = "Thanks for your honesty!";
+                playerDialogWindow.setTitleText(msg, mainColor);
+            }else if(!isReplyYes && hasCard){
+                msg = "Dont lie to me... ";
+                playerDialogWindow.setTitleText(msg, mainColor);
+            }else if(isReplyClicked && !hasCard){
+                msg = "You dont have that card"; 
+                playerDialogWindow.setTitleText(msg, mainColor);
+            }
+            playerDialogWindow.hideBtns();
+            this.repaint();
+            sleep(2500);
+            isReplyClicked = false;
+        }
+        leftCenter.removeAll();
+        this.revalidate();
+        this.repaint();
+    }
+    
+    public void displayLuckyDip(Color color){
+        leftCenter.removeAll();
+        luckyDipWindow.setLabelColor(color);
+        luckyDipWindow.setTextLabel("Lucky Dip!");
+        leftCenter.add(luckyDipWindow); 
+        this.repaint();
+        sleep(3500);
+    }
+
+    public boolean displayEndGame(Player winner){
+        leftCenter.removeAll();
+        String name = winner.getName();
+        endGameWindow.setWinner(name);
+        leftCenter.add(endGameWindow);
+        this.repaint();
+        synchronized(endLock){
+            try{
+                endLock.wait();
+            }catch(Exception e){}
+        }
+        return playAgain; 
+    }
+
     public void createPanels() {
         for (int i = 0; i < this.players.length; i++) {
             if (this.players[i].isBot()) {
@@ -232,43 +383,11 @@ public class GamePanel extends JPanel implements ActionListener {
             }
         }
     }
-    public void sleep(int ms){
-        try{
+    public void sleep(int ms) {
+        try {
             Thread.sleep(ms);
-        }catch(InterruptedException e){}
-    }
-    public void displayBotInput(Player mainPlayer, Player askedPlayer, String card){
-        leftCenter.removeAll();
-        boolean isBot = askedPlayer.isBot(); 
-        boolean hasCard = askedPlayer.hasCard(card); 
-        String mainName = mainPlayer.getName().toUpperCase();
-        String askedName = askedPlayer.getName().toUpperCase();
-        String question;
-        Color mainColor = mainPlayer.getColor(); 
-        botDialogWindow.clear();
-        leftCenter.add(botDialogWindow);
-        botDialogWindow.setCustomLayout(isBot);
-        if(isBot){
-            question = mainName + ": Hey " + askedPlayer.getName() + ", do you have " + card + " ???";
-            botDialogWindow.setQuestion(question, mainColor);
-            botDialogWindow.setAnswer("", null);
-            this.repaint();
-            sleep(4000);
-            String answer = "";
-            if(hasCard){
-                answer = askedName + ": Yeah, I have it";
-            }else{
-                answer = askedName + ": No, I do not have it...";
-            }
-            botDialogWindow.setAnswer(answer, askedPlayer.getColor());
-            sleep(4000);
-            this.repaint();
-        }else{
-            question = mainName + ": Hey, Do you have " + card + " ???";
-            botDialogWindow.setQuestion(question, mainColor);
-
-            this.repaint();
-            sleep(10000);
+        } catch (InterruptedException e) {
+            System.out.println("GamePanel, Sleep Function Error");
         }
     }
 }

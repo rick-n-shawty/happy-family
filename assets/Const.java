@@ -12,6 +12,10 @@ public class Const {
     public static final int FRAME_WIDTH = 850;
     public static final int CARD_DECK_X = FRAME_WIDTH - 112;
     public static final int CARD_DECK_Y = 167;
-    public static final String[] BOT_NAMES = {"","Zaeem", "Deborah", "Sam"};
+    public static final String[] BOT_NAMES = {"You","Zaeem", "Deborah", "Sam"};
+    public static final String myRegex = "[,\\s]";
     public Const(){}
+    public static String convertToLower(String input){
+        return input.toLowerCase().replaceAll(myRegex, "");
+    }
 }

@@ -9,11 +9,13 @@
 8 - Make conditions less rigid when calculating position of the card ✅
 9 - Fix the bug with input (memory leaks, learn to use debugger) ✅
 10 - Fix animation bug when moving the frame ✅
-11 - Handle dialog with the user 
-12 - Make pop-windows to notify a player of collected families 
+11 - Handle dialog with the user ✅
+12 - Make pop-windows to notify a player of collected families ✅
+13 - fix the input validation function ✅ 
+14 - check the state of the game 
+15 - increment collected families count ✅
+16 - change the file paths to images 
+17 - try to make it frame resizable 
+18 - replace the while loops with locks 
 
 
-// WHERE WE LEFT OFF 
-- use JDialog for the pop up window!!! 
-- JDialog must be a seperate component
-- IMPLEMENT ANIMATION USING PYTHOGORAS 

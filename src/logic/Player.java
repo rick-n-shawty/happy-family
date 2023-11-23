@@ -16,6 +16,7 @@ public class Player {
     private HashMap<String, Integer>familyStackCount;
     private HashMap<String, Card> hand;
     private String name;
+    private boolean isFamilyFound = false;
     public Player(boolean isBot, int playerId, String playerName){
         this.isBot = isBot;
         this.id = playerId;
@@ -46,7 +47,7 @@ public class Player {
         // find the appropriate face for the card 
         for(int i = 0; i < Const.faces.length; i++){
             String cardName = Const.faces[i] + " " + family;
-            String finalName = cardName.toLowerCase().replaceAll(regex, "");
+            String finalName = cardName.toLowerCase().replaceAll(Const.myRegex, "");
             if(!this.hand.containsKey(finalName)){
                 return cardName; 
             }
@@ -88,18 +89,20 @@ public class Player {
     public boolean hasFamily(String cardName){
         // checks if player has the card of a specifc family in their hand 
         for(String key : this.hand.keySet()){
-            if(cardName.contains(this.hand.get(key).getFamily())){
+            String subStr = Const.convertToLower(this.hand.get(key).getFamily());
+            System.out.println(subStr);
+            if(cardName.contains(subStr)){
                 return true;
             }
         }
         return false;
     }
     public boolean hasCard(String cardName){
-        String finalName = cardName.toLowerCase().replaceAll(regex, ""); 
+        String finalName = cardName.toLowerCase().replaceAll(Const.myRegex, ""); 
         return this.hand.containsKey(finalName);
     }
     public Card getCard(String cardName){
-        String finalName = cardName.toLowerCase().replaceAll("[,\\s]", "");
+        String finalName = cardName.toLowerCase().replaceAll(Const.myRegex, "");
         for(String key : hand.keySet()){
             if(key.equals(finalName)){
                 Card temp = this.hand.get(key); 
@@ -116,8 +119,12 @@ public class Player {
     public boolean isBot(){
         return this.isBot;
     }
+    public boolean getFamilyFound(){
+        return this.isFamilyFound; 
+    }
     // SETTERS 
     public void setCard(Card card){
+        isFamilyFound = false; 
         this.hand.put(card.toString(), card); 
         if(this.familyStackCount.containsKey(card.getFamily())){
             int count = this.familyStackCount.get(card.getFamily()); 
@@ -128,6 +135,7 @@ public class Player {
         }
         if(this.familyStackCount.get(card.getFamily()) == Const.faces.length){
             // if user collected a full family, remove that family cards from the hand 
+            isFamilyFound = true;
             for(int i = 0; i < Const.faces.length; i++){
                 String cardName = Const.faces[i] + " " + card.getFamily();
                 cardName = cardName.toLowerCase().replaceAll(regex, ""); 

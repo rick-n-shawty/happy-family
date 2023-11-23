@@ -2,11 +2,11 @@ package logic;
 import assets.MyList;
 
 import java.util.HashMap;
-import java.util.Random;
+import java.security.SecureRandom;
 import assets.Const;
 public class CardDeck {
 
-    private Random random = new Random();
+    private SecureRandom random = new SecureRandom();
     private HashMap<String, Integer> allCards = new HashMap<>(); // helps to check if the requested card exists 
     private final String[] faces = {
         "Mr", 
@@ -22,7 +22,7 @@ public class CardDeck {
         "Chip, The Carpenter",
         "Dose, The Doctor",
         "Grits, The Grocer",
-        "Pots, The Painter",
+        "Pot, The Painter",
         "Soot, The Sweep",
         "Tape, The Tailor", 
         "Dip, The Dyer"
@@ -45,11 +45,6 @@ public class CardDeck {
             }
         }
     }
-    public void displayDeck(){
-        for(int i = 0; i < deck.size(); i++){
-            System.out.println(deck.get(i).toString());
-        }
-    }
     public void shuffleDeck(){
         for(int i = 0; i < deck.size(); i++){
             int randomIndex = random.nextInt(0, deck.size()); 
@@ -61,8 +56,6 @@ public class CardDeck {
             deck.add(i, tempCard);
         }
     }
-
-
     public Card popTheCard(){
         Card card = deck.get(deck.size() - 1);
         deck.remove(deck.size() - 1); 
@@ -82,5 +75,12 @@ public class CardDeck {
     
     public boolean isValidCard(String cardName){
         return allCards.containsKey(cardName);
+    }
+    public boolean isEmpty(){
+        if(this.deck.size() == 0){
+            return true;
+        }else{
+            return false;
+        }
     }
 }

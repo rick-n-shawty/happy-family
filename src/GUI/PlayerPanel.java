@@ -5,22 +5,18 @@ import javax.swing.SwingUtilities;
 
 import logic.Player;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
 import java.awt.Point;
 import java.awt.GridLayout;
-import java.awt.Image;
-import java.util.jar.JarEntry;
 import GUI.components.MyIcon;
 import GUI.components.MyLabel;
 import assets.Const;
-
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+
+
 public class PlayerPanel extends JPanel{
     private Player player;
     private JPanel infoPanel; 
@@ -66,6 +62,7 @@ public class PlayerPanel extends JPanel{
     }
     public void updateBotInfo(){
         cardsInfoLabel.setText("Cards: " + player.getCardsNum());
+        familiesInfoLabel.setText("Families: " + player.getCollectedFamilies());
         this.revalidate();
         this.repaint();
     }
