@@ -1,6 +1,7 @@
 package GUI;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 
 import logic.Player;
 
@@ -69,12 +70,16 @@ public class PlayerPanel extends JPanel{
         this.repaint();
     }
     public Point getCardPositon(){
+        Point location;
         if(this.cardLabel == null){
-            // for the position of the player 
-            Point point = new Point(Const.FRAME_WIDTH - 300, 435); 
-            return point;
+            // for the position of the player
+            int x = (int)(cardContainer.getWidth()/2); 
+            int y = 0;
+            return new Point(x,y);
         }
-        return this.cardLabel.getLocationOnScreen();
+        location = this.cardLabel.getLocation();
+        Point newLocation = SwingUtilities.convertPoint(cardHolderPanel, location, this);
+        return newLocation;
     }
     // FOR PLAYER 
     private JPanel cardContainer;

@@ -17,4 +17,8 @@ public class Card {
     public String getFace(){
         return this.face; 
     }
+    public boolean comparison(String cardName){
+        cardName = cardName.toLowerCase().replaceAll("[,\\s]", "");
+        return this.toString().equals(cardName);
+    }
 }

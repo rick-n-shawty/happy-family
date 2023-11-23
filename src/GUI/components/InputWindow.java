@@ -12,15 +12,12 @@ import javax.swing.JTextField;
 public class InputWindow extends JPanel implements ActionListener{
     public JTextField playerName; 
     public JTextField cardName;
-    private String name; 
-    private String card;
     public JButton submitBtn; 
-    private boolean isClicked = false; 
     public InputWindow(){
         this.setVisible(true);
         playerName = new JTextField(20);
         cardName = new JTextField(20);
-        submitBtn = new JButton("submit");
+        submitBtn = new JButton("Submit");
         submitBtn.addActionListener(this);
         JLabel playerNameLabel = new JLabel("What player do you want to ask?");
         JLabel cardNameLabel = new JLabel("What card do you want?");
@@ -34,11 +31,5 @@ public class InputWindow extends JPanel implements ActionListener{
     }
     @Override
     public void actionPerformed(ActionEvent e) {
-        // System.out.println("Button was clicked");
-        // System.out.println(playerName.getText());
-        // System.out.println(cardName.getText());
-        // name = playerName.getText();
-        // card = cardName.getText();
-        // this.isClicked = true; 
     }
 }

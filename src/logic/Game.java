@@ -1,30 +1,28 @@
 package logic;
 import java.awt.Color;
-import java.util.Arrays;
-import java.util.InputMismatchException;
+import java.util.Random;
 import java.util.regex.*;
-
-import javax.swing.SwingUtilities;
-
+import java.awt.Point;
 import GUI.GamePanel;
 import GUI.MyFrame;
-
-import java.util.Random;
+import java.security.SecureRandom;
 import assets.Const;
 public class Game {
     private CardDeck cardDeck; 
     // private Scanner scanner;
     private boolean isGameOver = false; 
     private Player[] players;
-    private String[] faces;
-    private String[] families;
-    private int CurrentPlayerId = 0; // tracks the player whose turn it is
+    // private String[] faces;
+    // private String[] families;
+    private int CurrentPlayerId = 1; // tracks the player whose turn it is
+    private SecureRandom randomFn = new SecureRandom();
     private Random random = new Random();
     String reset = "\u001B[0m";
     String red = "\u001B[31m";   
     private MyFrame frame;
     private GamePanel gamePanel;
     private Player askedPlayer;
+    private String ErrorMessage; 
     public Game(){
         players = new Player[4];
         cardDeck = new CardDeck();
@@ -32,8 +30,8 @@ public class Game {
 
         frame = new MyFrame(players, cardDeck);
         gamePanel = frame.getPanel();
-        faces = cardDeck.getFaces(); 
-        families = cardDeck.getFamilies(); 
+        // faces = cardDeck.getFaces(); 
+        // families = cardDeck.getFamilies(); 
         
         
     }
@@ -45,7 +43,11 @@ public class Game {
         String chosenCard;
         Player currentPlayer;
         Card askedCard;
+        Card wantedCard; 
         while(!isGameOver){
+            // for(int i = 0; i < players.length; i++){
+            //     players[i].showHand(red);
+            // }
             if(CurrentPlayerId == 0){
                 currentPlayer = players[CurrentPlayerId]; 
 
@@ -58,27 +60,80 @@ public class Game {
 
                 if(canProceed == false){
                     // display the error message 
+                    gamePanel.displayError(ErrorMessage.isBlank() ? "Error" : ErrorMessage);
                     continue;
                 }
+
+
                 // check if player being asked has the card 
                 if(askedPlayer.hasCard(chosenCard)){
-                    // if they do, take their card with the animation 
+                    // take the card from the player 
+                    // animate the card 
+                    gamePanel.dealCard(askedPlayer, currentPlayer);
+                    while(gamePanel.isTimerRunning()){
+                        // wait for animation 
+                    }
+
                     askedCard = askedPlayer.getCard(chosenCard);
                     currentPlayer.setCard(askedCard);
+                    gamePanel.display();
+                    CurrentPlayerId = 0;  
                 }else{
-
-                    // if they dont,take the card from the deck 
+                    // draw the card from a deck
+                    gamePanel.dealCard(currentPlayer);
+                    while(gamePanel.isTimerRunning()){
+                        // wait 
+                    }
+                    gamePanel.display();
+                    Card drawnCard = cardDeck.popTheCard();
+                    currentPlayer.setCard(drawnCard);
+                    chosenCard = chosenCard.toLowerCase().replaceAll("[,\\s]", "");
+                    
+                    if(drawnCard.toString().equals(chosenCard)){
+                        // if player got a card they asked for, they get a second turn 
+                        CurrentPlayerId = 0;
+                    }else{
+                        CurrentPlayerId++;
+                    }
                 }
-                CurrentPlayerId++;
 
-
-
-               
-
-                // CurrentPlayerId++;
             }else{
-               
-                // sleep(2000);
+                currentPlayer = players[CurrentPlayerId];
+                // pick a player randomly 
+                // int randomIndex = randomFn.nextInt(1,players.length); 
+                int randomIndex = 0;
+                if(randomIndex == currentPlayer.getId()){
+                    randomIndex = randomFn.nextInt(currentPlayer.getId()); 
+                    askedPlayer = players[randomIndex];
+                }
+
+                askedPlayer = players[randomIndex]; 
+                chosenCard = currentPlayer.getChosenCard(); 
+                gamePanel.display();
+                gamePanel.displayBotInput(currentPlayer, askedPlayer, chosenCard);
+                if(askedPlayer.hasCard(chosenCard)){
+                    gamePanel.dealCard(askedPlayer, currentPlayer);
+                    while (gamePanel.isTimerRunning()) {
+                        // wait
+                    }
+                    wantedCard = askedPlayer.getCard(chosenCard);
+                    currentPlayer.setCard(wantedCard);
+                }else{
+                    gamePanel.dealCard(currentPlayer);
+                    while (gamePanel.isTimerRunning()) {
+                        // wait
+                    }
+                    wantedCard = cardDeck.popTheCard();
+                    currentPlayer.setCard(wantedCard);
+                    if(!wantedCard.comparison(chosenCard)){
+                        if(CurrentPlayerId == players.length - 1){
+                            CurrentPlayerId = 0;
+                        }else{
+                            CurrentPlayerId++;
+                        }
+                    }
+                }
+
             }
         }   
     }
@@ -87,11 +142,12 @@ public class Game {
         String finalCardName = cardName.toLowerCase().replaceAll("[,\\s]", ""); 
         if(!cardDeck.isValidCard(finalCardName)){
             System.out.println("Card does not exist");
+            ErrorMessage = "Invalid card name"; 
             return false;
         }
         // check if player is allowed to request that card 
         if(!currentPlayer.hasFamily(cardName)){
-            System.out.println("Does not have that family");
+            ErrorMessage = "You don't have a card from that family to ask for " + cardName; 
             return false;
         }
 
@@ -104,7 +160,7 @@ public class Game {
                 return true;
             }
         }
-        System.out.println("player does not exist");
+        ErrorMessage = "Player '" + playerName + "' does not exist";
         askedPlayer = null;
         return false;
     }
@@ -150,11 +206,10 @@ public class Game {
         // deal 6 cards to each player 
         for(int i = 0; i < 6; i++){
             for(int j = 0; j < players.length; j++){
-                gamePanel.dealCard(players[j]);
-                while (gamePanel.isTimerRunning()) {
-                    // waits until animation is finished 
-                    // System.out.println("waiting..." + gamePanel.isTimerRunning());
-                }
+                // gamePanel.dealCard(players[j]);
+                //     while (gamePanel.isTimerRunning()) {
+                //         // waits until animation is finished 
+                //     }
                 Card card = cardDeck.popTheCard();
                 players[j].setCard(card);
                 gamePanel.revalidate();

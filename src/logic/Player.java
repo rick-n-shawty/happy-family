@@ -1,10 +1,6 @@
 package logic;
 import java.awt.Color;
-import java.util.ArrayList;
 import java.util.HashMap;
-
-import javax.swing.JPanel;
-
 import GUI.PlayerPanel;
 import assets.Const;
 import java.awt.Point;
@@ -12,11 +8,10 @@ public class Player {
     String reset = "\u001B[0m";
     String green = "\u001B[32m"; 
     String pink = "\u001B[35m";
+    String regex = "[,\\s]";
     private boolean isBot; 
     private Color color;
     private int id;
-    private int xPosition;
-    private int yPosition;
     private PlayerPanel panel;
     private HashMap<String, Integer>familyStackCount;
     private HashMap<String, Card> hand;
@@ -38,7 +33,7 @@ public class Player {
         }
         return cardsArray;
     }
-    public String chooseCard(){
+    public String getChosenCard(){
         // find the family that is almost completed
         int count = 0;  
         String family = ""; 
@@ -51,15 +46,15 @@ public class Player {
         // find the appropriate face for the card 
         for(int i = 0; i < Const.faces.length; i++){
             String cardName = Const.faces[i] + " " + family;
-            if(!this.hand.containsKey(cardName)){
+            String finalName = cardName.toLowerCase().replaceAll(regex, "");
+            if(!this.hand.containsKey(finalName)){
                 return cardName; 
             }
         }
+
+        // if smth is off, pick a random card 
         return "";
 
-    }
-    public String toString(){
-        return "IsBot: " + this.isBot + " Id: " + this.id;
     }
     public int getCollectedFamilies(){
         int count = 0; 
@@ -100,7 +95,7 @@ public class Player {
         return false;
     }
     public boolean hasCard(String cardName){
-        String finalName = cardName.toLowerCase().replaceAll("[,\\s]", ""); 
+        String finalName = cardName.toLowerCase().replaceAll(regex, ""); 
         return this.hand.containsKey(finalName);
     }
     public Card getCard(String cardName){
@@ -135,6 +130,7 @@ public class Player {
             // if user collected a full family, remove that family cards from the hand 
             for(int i = 0; i < Const.faces.length; i++){
                 String cardName = Const.faces[i] + " " + card.getFamily();
+                cardName = cardName.toLowerCase().replaceAll(regex, ""); 
                 hand.remove(cardName);
             }
             System.out.println(pink + "HAPPY FAMILY" + reset);

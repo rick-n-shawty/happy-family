@@ -3,10 +3,9 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.Dimension;
 import javax.swing.JFrame;
-
 import logic.CardDeck;
-import logic.Game;
 import logic.Player;
+
 public class MyFrame extends JFrame {
     GamePanel panel; 
     
@@ -25,9 +24,8 @@ public class MyFrame extends JFrame {
                 panel.revalidate();        
            
             }
-            public void componentMoved(ComponentEvent e){
-                updateAnimation();
-            }
+            @Override
+            public void componentMoved(ComponentEvent e){}
         });
         this.add(panel);
         this.pack();
@@ -35,8 +33,5 @@ public class MyFrame extends JFrame {
     }
     public GamePanel getPanel(){
         return this.panel;
-    }
-    public void updateAnimation(){
-        panel.updateCoordinates();
     }
 }
