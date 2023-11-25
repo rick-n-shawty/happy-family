@@ -1,9 +1,10 @@
 package logic;
-import java.awt.Color;
-import java.util.Random;
 import GUI.GamePanel;
 import GUI.MyFrame;
 import java.security.SecureRandom;
+
+import javax.swing.JFrame;
+
 import assets.Const;
 public class Game {
     private CardDeck cardDeck; 
@@ -11,7 +12,6 @@ public class Game {
     private Player[] players;
     private int CurrentPlayerId = 0; // tracks the player whose turn it is
     private SecureRandom randomFn = new SecureRandom();
-    private Random random = new Random();
     String reset = "\u001B[0m";
     String red = "\u001B[31m";   
     private MyFrame frame;
@@ -27,7 +27,22 @@ public class Game {
         frame = new MyFrame(players, cardDeck);
         gamePanel = frame.getPanel();        
     }
-
+    public void resetGame(boolean playAgain){
+        // reset players 
+        if(!playAgain){
+            System.exit(0);
+        }
+        for(int i = 0; i < players.length; i++){
+            players[i].reset();
+        }
+        isGameOver = false; 
+        // reset deck 
+        cardDeck.initializeDeck(); 
+        cardDeck.shuffleDeck();
+        gamePanel.display();
+        dealCards(); 
+        gamePanel.display();
+    }
     public void start(){
         cardDeck.shuffleDeck();
         dealCards();
@@ -37,10 +52,24 @@ public class Game {
         Player currentPlayer;
         Card askedCard;
         Card wantedCard; 
+        Player winner; 
+        boolean tie;
+        boolean playAgain; 
+
         while(!isGameOver){
-            if(gameOver()){
-                Player winner = determineWinner(); 
-                gamePanel.displayEndGame(winner);
+            isGameOver = gameOver();
+            tie = isTie();
+            if(isGameOver && !tie){
+                // display winner 
+                winner = determineWinner(); 
+                playAgain = gamePanel.displayEndGame(winner);
+                resetGame(playAgain);
+                continue;
+            }else if(isGameOver && tie){
+                // display draw 
+                playAgain = gamePanel.displayEndGame("It is a draw!"); 
+                resetGame(playAgain);           
+                continue;
             }
 
             if(CurrentPlayerId == 0){
@@ -173,7 +202,6 @@ public class Game {
                 maxFamCount = players[i].getCollectedFamilies(); 
                 winner = players[i]; 
             }
-            // CONSIDER THE DRAW SCENARIO LATER ON
         }
         return winner;
     }
@@ -190,14 +218,18 @@ public class Game {
         }
         return false; 
     }
+    public boolean isTie(){
+        int count = players[0].getCollectedFamilies(); 
+        for(int i = 1; i < players.length; i++){
+            if(players[i].getCollectedFamilies() != count) return false; 
+        }
+        return true;
 
+    }
     public void initializeGame(){ 
         for(int i = 0; i < 4; i++){
             players[i] = new Player(i != 0, i, Const.BOT_NAMES[i]);
-            int r = random.nextInt(255);
-            int g = random.nextInt(255);
-            int b = random.nextInt(255);
-            players[i].setColor(new Color(r,g,b));
+            players[i].setColor(Const.playerColors[i]);
         }
     }
     
@@ -218,5 +250,10 @@ public class Game {
                 gamePanel.display();
             }
         }
+        players[0].makeWinner();
+    }
+
+    public MyFrame getFrame(){
+        return this.frame;
     }
 }

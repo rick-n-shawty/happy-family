@@ -11,7 +11,6 @@ public class BotDialogWindow extends JPanel{
     private String question;
     private String answer; 
     public BotDialogWindow(){
-        
         qLabel = new MyLabel(question,16);
         qLabel.setVisible(true); 
         qLabel.setOpaque(true);

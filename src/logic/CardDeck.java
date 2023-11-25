@@ -8,25 +8,8 @@ public class CardDeck {
 
     private SecureRandom random = new SecureRandom();
     private HashMap<String, Integer> allCards = new HashMap<>(); // helps to check if the requested card exists 
-    private final String[] faces = {
-        "Mr", 
-        "Mrs", 
-        "Master",
-        "Miss"
-    };
-    private final String[] families = {
-        "Block, The Barber",
-        "Bones, The Butcher",
-        "Bun, The Baker",
-        "Bung, The Brewer",
-        "Chip, The Carpenter",
-        "Dose, The Doctor",
-        "Grits, The Grocer",
-        "Pot, The Painter",
-        "Soot, The Sweep",
-        "Tape, The Tailor", 
-        "Dip, The Dyer"
-    };
+    private final String[] faces = Const.faces;
+    private final String[] families = Const.families;
     private MyList<Card> deck;
     public CardDeck(){
         deck = new MyList<>(Const.NUMBER_OF_CARDS);
@@ -34,11 +17,11 @@ public class CardDeck {
     }
     public void initializeDeck(){
         int mainIndex = 0;
+        deck.clear();
         for(int i = 0; i < faces.length; i++){
             for(int j = 0; j < families.length; j++){
-            
                 Card card = new Card(faces[i], families[j]);
-                String cardName = card.toString().toLowerCase().replaceAll("[,\\s]", ""); 
+                String cardName = Const.convertToLower(card.toString());
                 allCards.put(cardName, 1);
                 deck.add(mainIndex, card); 
                 mainIndex++; 

@@ -5,12 +5,14 @@ import javax.swing.SwingUtilities;
 
 import logic.Player;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
 import java.awt.Point;
+import java.net.URL;
 import java.awt.GridLayout;
+import java.awt.Image;
+
 import GUI.components.MyIcon;
 import GUI.components.MyLabel;
 import assets.Const;
@@ -26,6 +28,7 @@ public class PlayerPanel extends JPanel{
     private JPanel cardHolderPanel;
     private MyIcon cardBackIcon;
     private JLabel cardLabel;
+    private URL imageUrl; 
     public PlayerPanel(Player player, Boolean isBot){
         // layout for the bots 
         this.player = player;
@@ -48,10 +51,12 @@ public class PlayerPanel extends JPanel{
         infoPanel.add(familiesInfoLabel);
         
         cardHolderPanel = new JPanel();
+        cardHolderPanel.setBackground(player.getColor());
         cardHolderPanel.setLayout(new GridBagLayout());
         cardLabel = new JLabel(); 
         cardLabel.setVisible(true);
-        cardBackIcon = new MyIcon("/Users/sultkh/Desktop/HappyFam/res/images/Back-card.png");
+        URL imageUrl = this.getClass().getResource("/res/images/Back-card.png");
+        cardBackIcon = new MyIcon(imageUrl);
 
         cardLabel.setIcon(cardBackIcon);
         cardLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -89,19 +94,26 @@ public class PlayerPanel extends JPanel{
         this.player = player; 
         this.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
         this.setOpaque(true);
-        this.setBackground(Color.GREEN);
         cardContainer = new JPanel(); 
         cardContainer.setVisible(true);
-        cardContainer.setBackground(Color.BLUE);
+        cardContainer.setBackground(player.getColor());
         cardContainer.setLayout(new FlowLayout(FlowLayout.CENTER, 1, 1));
         cardContainer.setPreferredSize(new Dimension(Const.FRAME_WIDTH - 150, 280));
 
         familiesContainer = new JPanel(); 
-        familiesContainer.setBackground(Color.RED);
+        familiesContainer.setBackground(player.getColor());
         familiesContainer.setPreferredSize(new Dimension(150, 280));
 
         this.add(cardContainer);
         this.add(familiesContainer);
+    }
+    public void resize(int newWidth, int newHeight){
+        if(!player.isBot()){
+            cardContainer.setPreferredSize(new Dimension((int)(this.getWidth() * 0.80), this.getHeight()));
+            familiesContainer.setPreferredSize(new Dimension((int)(this.getWidth() * 0.20), this.getHeight()));
+            this.revalidate();
+            this.repaint();
+        }
     }
     public void attachCards(){
         if(!this.player.isBot()){
@@ -112,7 +124,8 @@ public class PlayerPanel extends JPanel{
                 JLabel cardLabel = new JLabel(); 
                 cardLabel.setVisible(true);
                 cardLabel.setOpaque(true);
-                MyIcon cardFaceIcon = new MyIcon("/Users/sultkh/Desktop/HappyFam/res/images/faceImages/" + hand[i] + ".png"); 
+                imageUrl = this.getClass().getResource("/res/images/faceImages/" + hand[i] + ".png");
+                MyIcon cardFaceIcon = new MyIcon(imageUrl); 
                 cardLabel.setIcon(cardFaceIcon);
                 this.cardContainer.add(cardLabel);
             }

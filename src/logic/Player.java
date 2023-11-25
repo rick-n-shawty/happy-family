@@ -5,10 +5,6 @@ import GUI.PlayerPanel;
 import assets.Const;
 import java.awt.Point;
 public class Player {
-    String reset = "\u001B[0m";
-    String green = "\u001B[32m"; 
-    String pink = "\u001B[35m";
-    String regex = "[,\\s]";
     private boolean isBot; 
     private Color color;
     private int id;
@@ -55,7 +51,6 @@ public class Player {
 
         // if smth is off, pick a random card 
         return "";
-
     }
     public int getCollectedFamilies(){
         int count = 0; 
@@ -122,6 +117,16 @@ public class Player {
     public boolean getFamilyFound(){
         return this.isFamilyFound; 
     }
+    public Point getLocation(){
+        return this.panel.getCardPositon();
+    }
+    public PlayerPanel getPlayerPanel(){
+        return this.panel;
+    }
+    public Color getColor(){
+        return this.color;
+    }
+
     // SETTERS 
     public void setCard(Card card){
         isFamilyFound = false; 
@@ -138,42 +143,34 @@ public class Player {
             isFamilyFound = true;
             for(int i = 0; i < Const.faces.length; i++){
                 String cardName = Const.faces[i] + " " + card.getFamily();
-                cardName = cardName.toLowerCase().replaceAll(regex, ""); 
+                cardName = cardName.toLowerCase().replaceAll(Const.myRegex, ""); 
                 hand.remove(cardName);
             }
-            System.out.println(pink + "HAPPY FAMILY" + reset);
         }
     }
-    // VOIDS
-    public void showHand(String color){
-        String row = "";
-        System.out.println("Player " + this.id);
-        for(String key : this.hand.keySet()){
-            row = color + "| " + this.hand.get(key).toString() + " |" + reset; 
-            System.out.println(row);
-            row = "";
-        }
-    }
-
-
-    // --------- 
     public void setPanel(PlayerPanel botPanel){
         this.panel = botPanel; 
     }
 
-    public PlayerPanel getPlayerPanel(){
-        return this.panel;
-    }
-    // get main player panel
-
-    // get location of a panel through the Player 
-    public Point getLocation(){
-        return this.panel.getCardPositon();
+    public void reset(){
+        this.familyStackCount.clear(); 
+        this.hand.clear();
     }
     public void setColor(Color color){
         this.color = color;
     }
-    public Color getColor(){
-        return this.color;
+
+
+
+
+
+
+    // TEMP
+    public void makeWinner(){
+        String[] fams = Const.families;
+        for(int i = 0; i < fams.length; i++){
+            String key = Const.convertToLower(fams[i]);
+            this.familyStackCount.put(key, 4);
+        }
     }
 }
