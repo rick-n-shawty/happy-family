@@ -7,3 +7,5 @@ This project implements a basic card game where players take turns playing cards
  - **Deck class**: Manages a deck of cards with functionalities like shuffling and dealing.
  - **Player class**: Defines players and their hands 
  - **Game class**: Contains the game flow, rounds, and determines the winner. 
+## Instructions
+ - To run the program, cd into bin folder and run "java Main"
