@@ -160,17 +160,4 @@ public class Player {
         this.color = color;
     }
 
-
-
-
-
-
-    // TEMP
-    public void makeWinner(){
-        String[] fams = Const.families;
-        for(int i = 0; i < fams.length; i++){
-            String key = Const.convertToLower(fams[i]);
-            this.familyStackCount.put(key, 4);
-        }
-    }
 }

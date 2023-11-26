@@ -59,6 +59,9 @@ public class CardDeck {
     public boolean isValidCard(String cardName){
         return allCards.containsKey(cardName);
     }
+    public Card getNextCard(){
+        return this.deck.get(getSize() - 1);
+    }
     public boolean isEmpty(){
         if(this.deck.size() == 0){
             return true;

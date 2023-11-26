@@ -1,10 +1,7 @@
 package GUI;
-
 import javax.swing.BoxLayout;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import logic.CardDeck;
 import logic.Player;
@@ -26,7 +23,6 @@ import GUI.components.PlayerDialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URL;
-
 import javax.swing.Timer;
 
 public class GamePanel extends JPanel implements ActionListener {
@@ -304,9 +300,9 @@ public class GamePanel extends JPanel implements ActionListener {
         luckyDipWindow.setLabelColor(color);
         luckyDipWindow.setTextLabel("Happy Family!!!");
         leftCenter.add(luckyDipWindow);
+        this.revalidate();
         this.repaint();
         sleep(3500);
-
     }
 
     public void displayBotInput(Player mainPlayer, Player askedPlayer, String card) {
@@ -335,6 +331,7 @@ public class GamePanel extends JPanel implements ActionListener {
             }
             botDialogWindow.setAnswer(answer, askedPlayer.getColor());
             sleep(4000);
+            this.revalidate(); 
             this.repaint();
         } else {
             // bot is asking user
@@ -362,6 +359,7 @@ public class GamePanel extends JPanel implements ActionListener {
                 playerDialogWindow.setTitleText(msg, mainColor);
             }
             playerDialogWindow.hideBtns();
+            this.revalidate();
             this.repaint();
             sleep(2500);
             isReplyClicked = false;
@@ -376,6 +374,7 @@ public class GamePanel extends JPanel implements ActionListener {
         luckyDipWindow.setLabelColor(color);
         luckyDipWindow.setTextLabel("Lucky Dip!");
         leftCenter.add(luckyDipWindow);
+        this.revalidate();
         this.repaint();
         sleep(3500);
     }
@@ -385,6 +384,7 @@ public class GamePanel extends JPanel implements ActionListener {
         String name = winner.getName();
         endGameWindow.setLabelText(name + " WON!");
         leftCenter.add(endGameWindow);
+        this.revalidate();
         this.repaint();
         synchronized (endLock) {
             try {
@@ -399,6 +399,7 @@ public class GamePanel extends JPanel implements ActionListener {
         leftCenter.removeAll();
         endGameWindow.setLabelText(draw);
         leftCenter.add(endGameWindow);
+        this.revalidate();
         this.repaint();
         synchronized (endLock) {
             try {

@@ -19,8 +19,10 @@ public class LuckyDip extends JPanel {
     public void setLabelColor(Color color){
         this.setBackground(color);
         textLabel.setBackground(color);
+        this.repaint();
     }
     public void setTextLabel(String text){
         textLabel.setText(text);
+        this.revalidate();
     }
 }

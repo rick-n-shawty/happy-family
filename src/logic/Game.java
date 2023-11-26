@@ -2,9 +2,8 @@ package logic;
 import GUI.GamePanel;
 import GUI.MyFrame;
 import java.security.SecureRandom;
-
-
 import assets.Const;
+
 public class Game {
     private CardDeck cardDeck; 
     private boolean isGameOver = false; 
@@ -99,7 +98,7 @@ public class Game {
                     }
                     gamePanel.display();
                     CurrentPlayerId = 0;  
-                }else{
+                }else{ 
                     // draw the card from a deck
                     gamePanel.dealCard(currentPlayer);
                     while(gamePanel.isTimerRunning()){
@@ -128,6 +127,7 @@ public class Game {
 
             }else{
                 currentPlayer = players[CurrentPlayerId];
+
                 // pick a player randomly 
                 int randomIndex = randomFn.nextInt(0,players.length);
                 if(randomIndex == currentPlayer.getId()){
@@ -136,7 +136,8 @@ public class Game {
                 }
 
                 askedPlayer = players[randomIndex]; 
-                chosenCard = currentPlayer.getChosenCard(); 
+                chosenCard = currentPlayer.getChosenCard();
+                // chosenCard = cardDeck.getNextCard().toString(); 
                 gamePanel.display();
                 gamePanel.displayBotInput(currentPlayer, askedPlayer, chosenCard);
 
@@ -158,23 +159,6 @@ public class Game {
                     receivedCard = cardDeck.popTheCard();
                     currentPlayer.setCard(receivedCard);
 
-                    // if(receivedCard.comparison(chosenCard)){
-                    //     if(currentPlayer.getFamilyFound()){
-                    //         gamePanel.displayHappyFamily(currentPlayer.getColor());;
-                    //     }else{
-                    //         gamePanel.displayLuckyDip(currentPlayer.getColor());
-                    //     }
-                    // }else{
-                    //     if(currentPlayer.getFamilyFound()){
-                    //         gamePanel.displayHappyFamily(currentPlayer.getColor());
-                    //     }else{
-                    //         if(CurrentPlayerId == players.length - 1){
-                    //             CurrentPlayerId = 0;
-                    //         }else{
-                    //             CurrentPlayerId++;
-                    //         }
-                    //     }
-                    // }
 
                     if(!receivedCard.comparison(chosenCard) && currentPlayer.getFamilyFound()){
                         // did not get desired card but collected a family 
@@ -191,6 +175,7 @@ public class Game {
                         gamePanel.displayHappyFamily(currentPlayer.getColor());
                     }else if(receivedCard.comparison(chosenCard) && !currentPlayer.getFamilyFound()){
                         // got the right card but did not collect a family 
+                        System.out.println("LUCKY DIP FROM IF 1");
                         gamePanel.displayLuckyDip(currentPlayer.getColor());
                     }
                 }
@@ -198,6 +183,7 @@ public class Game {
             }
         }   
     }
+
     public boolean isInputValid(Player currentPlayer, String playerName, String cardName){
         // check the spelling of the card 
         String finalCardName = Const.convertToLower(cardName); 
@@ -293,9 +279,5 @@ public class Game {
                 gamePanel.display();
             }
         }
-    }
-
-    public MyFrame getFrame(){
-        return this.frame;
     }
 }
