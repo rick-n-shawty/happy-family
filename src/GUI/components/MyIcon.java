@@ -2,7 +2,7 @@ package GUI.components;
 
 import javax.swing.ImageIcon;
 import java.awt.Image;
-import java.net.URL;
+// import java.net.URL;
 
 import assets.Const;
 public class MyIcon extends ImageIcon {
@@ -12,9 +12,10 @@ public class MyIcon extends ImageIcon {
         Image scaledImage = icon.getImage().getScaledInstance(Const.CARD_ICON_WIDTH, Const.CARD_ICON_HEIGHT, Image.SCALE_SMOOTH); 
         this.setImage(scaledImage);
     }
-    public MyIcon(URL url){
-        icon = new ImageIcon(url);
-        Image scaledImage = icon.getImage().getScaledInstance(Const.CARD_ICON_WIDTH, Const.CARD_ICON_HEIGHT, Image.SCALE_SMOOTH); 
+    public MyIcon(Image img){
+        icon = new ImageIcon(img);
+        Image scaledImage = icon.getImage().getScaledInstance(Const.CARD_ICON_WIDTH, Const.CARD_ICON_HEIGHT, Image.SCALE_SMOOTH);
         this.setImage(scaledImage);
     }
+
 }

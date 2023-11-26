@@ -1,4 +1,5 @@
 package GUI;
+import javax.imageio.ImageIO;
 import javax.swing.BoxLayout;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -14,6 +15,8 @@ import java.awt.Graphics2D;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Point;
+import java.awt.SystemTray;
+
 import GUI.components.InputWindow;
 import GUI.components.LuckyDip;
 import GUI.components.BotDialogWindow;
@@ -22,7 +25,11 @@ import GUI.components.MyIcon;
 import GUI.components.PlayerDialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.URL;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import javax.swing.Timer;
 
 public class GamePanel extends JPanel implements ActionListener {
@@ -61,8 +68,7 @@ public class GamePanel extends JPanel implements ActionListener {
 
     private String playerNameInput;
     private String cardNameInput;
-    private MyIcon cardBackImg;
-    private MyIcon deckIcon;
+    private MyIcon cardBackImg = new MyIcon("res/images/Back-card.png");
 
     // LOCKS
     private static final Object lock = new Object();
@@ -96,8 +102,14 @@ public class GamePanel extends JPanel implements ActionListener {
 
         deckPanel = new DeckPanel();
         deckPanel.updateDeckNum(cardDeck.getSize());
-        URL imageURL = this.getClass().getResource("/res/images/Back-card.png");
-        cardBackImg = new MyIcon(imageURL);
+        try{
+            Path imagePath = Paths.get("../res/images/Back-card.png");
+            BufferedImage image = ImageIO.read(imagePath.toFile());
+            cardBackImg = new MyIcon(image);
+        }catch(IOException e){
+            e.printStackTrace();
+            System.out.println("GAME PANEL ISSUE");
+        }
         rightCenter.add(deckPanel);
         //
 
@@ -182,8 +194,7 @@ public class GamePanel extends JPanel implements ActionListener {
         super.paint(g);
         Graphics2D g2D = (Graphics2D) g;
         if(timer.isRunning()){
-            g2D.drawImage(cardBackImg.getImage(), x, y, null);
-            // g2D.drawImage(cardBackImg.getImage(), CARD_DECK_X, CARD_DECK_Y, null);
+            g2D.drawImage(this.cardBackImg.getImage(), x, y, null);
         }
     }
 

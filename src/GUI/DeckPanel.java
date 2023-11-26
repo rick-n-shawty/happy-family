@@ -1,28 +1,32 @@
 package GUI;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import java.awt.Point;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import GUI.components.MyIcon;
 import GUI.components.MyLabel;
 import assets.Const;
 
-import java.net.URL;
 
 public class DeckPanel extends JPanel {
     private JPanel iconPanel;
     private MyLabel iconLabel;
     private JPanel countPanel;
     private MyLabel countLabel;
-    private MyIcon backIcon;
+    private MyIcon backIcon = new MyIcon("../res/images/Back-card.png");
 
     public DeckPanel() {
         this.setVisible(true);
@@ -34,10 +38,17 @@ public class DeckPanel extends JPanel {
         iconPanel.setLayout(new GridBagLayout());
         iconPanel.setBorder(BorderFactory.createEmptyBorder(15, 1, 15, 1));
         iconLabel = new MyLabel();
-        URL imagerUrl = this.getClass().getResource("/res/images/Back-card.png");
-        backIcon = new MyIcon(imagerUrl);
+        try{
+            Path imagePath = Paths.get("../res/images/Back-card.png");
+            BufferedImage image = ImageIO.read(imagePath.toFile()); 
+            backIcon = new MyIcon(image);
+            iconLabel.setIcon(backIcon);
+        }catch(IOException e){
+            e.printStackTrace();
+            System.out.println("DECK-PANEL ISSUE");
+        }
+        // backIcon = new MyIcon(imagerUrl);
         iconLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        iconLabel.setIcon(backIcon);
         iconLabel.setOpaque(true);
         iconPanel.add(iconLabel);
 
