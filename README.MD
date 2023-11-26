@@ -1,4 +1,3 @@
-### TO-DO
-1 - try to make the frame resizable 
-
-
+### HOW TO PLAY? 
+1 - Enter the name of the player to ask 
+2 - Enter the name of the card in the format: "Face" + "Suit" 

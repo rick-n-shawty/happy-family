@@ -40,12 +40,11 @@ public class GamePanel extends JPanel implements ActionListener {
     private JPanel rightCenter;
     private Player[] players;
     private CardDeck cardDeck;
-    private JLabel deckIconLabel = new JLabel();
-    private JLabel deckCountLabel = new JLabel("Number of cards: ");
+    private DeckPanel deckPanel;
     private PlayerPanel playerPanel;
     // ANIMATION VARIABLES
     private Timer timer;
-    private final int TIMER_DELAY = 1;
+    private final int TIMER_DELAY = 2;
     private int xVelocity = 1;
     private int yVelocity = 1;
     private int x = Const.CARD_DECK_X;
@@ -95,24 +94,15 @@ public class GamePanel extends JPanel implements ActionListener {
 
         // CARD DECK CONTAINER
         rightCenter = new JPanel();
-        rightCenter.setLayout(new BorderLayout());
+        rightCenter.setLayout(new GridBagLayout());
         rightCenter.setPreferredSize(new Dimension(150, 250));
         rightCenter.setBackground(Const.yellowish);
 
-        deckIconLabel.setVisible(true);
-        deckIconLabel.setOpaque(false);
-        deckIconLabel.setPreferredSize(new Dimension(150, 200));
+        deckPanel = new DeckPanel();
+        deckPanel.updateDeckNum(cardDeck.getSize());
         URL imageURL = this.getClass().getResource("/res/images/Back-card.png");
-        deckIcon = new MyIcon(imageURL);
         cardBackImg = new MyIcon(imageURL);
-        deckIconLabel.setIcon(deckIcon);
-        deckIconLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        deckCountLabel.setVisible(true);
-        deckCountLabel.setOpaque(false);
-        deckCountLabel.setPreferredSize(new Dimension(150, 50));
-
-        rightCenter.add(deckIconLabel, BorderLayout.NORTH);
-        rightCenter.add(deckCountLabel, BorderLayout.SOUTH);
+        rightCenter.add(deckPanel);
         //
 
         centerPanel.add(leftCenter);
@@ -130,7 +120,6 @@ public class GamePanel extends JPanel implements ActionListener {
         });
         playerDialogWindow.getYesBtn().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                System.out.println("YES");
                 isReplyYes = true;
                 synchronized (lock) {
                     isReplyClicked = true;
@@ -140,7 +129,6 @@ public class GamePanel extends JPanel implements ActionListener {
         });
         playerDialogWindow.getNoBtn().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                System.out.println("NO");
                 isReplyYes = false;
                 synchronized (lock) {
                     isReplyClicked = true;
@@ -177,15 +165,14 @@ public class GamePanel extends JPanel implements ActionListener {
         centerPanel.setPreferredSize(new Dimension(newWidth, (int) (newHeight * 0.40)));
         leftCenter.setPreferredSize(new Dimension((int) (newWidth * 0.80), (int) (newHeight * 0.40)));
         rightCenter.setPreferredSize(new Dimension((int) (newWidth * 0.20), (int) (newHeight * 0.40)));
-        deckCountLabel.setPreferredSize(new Dimension(rightCenter.getWidth(), (int) (rightCenter.getHeight() * 0.2)));
-        deckIconLabel.setPreferredSize(new Dimension(rightCenter.getWidth(), (int) (rightCenter.getHeight() * 0.8)));
 
-
-        // Point location = deckIconLabel.getLocation();
-        // location = SwingUtilities.convertPoint(rightCenter, location, centerPanel);
-        // location = SwingUtilities.convertPoint(centerPanel, location, this);
-        CARD_DECK_X = (int) (newWidth * 0.868235 + cardBackImg.getIconWidth());
-        CARD_DECK_Y = (int) (newHeight * 0.256923) + cardBackImg.getIconHeight();
+        Point location = deckPanel.getPosition(); 
+        location = SwingUtilities.convertPoint(deckPanel, location, rightCenter);
+        location = SwingUtilities.convertPoint(rightCenter, location, centerPanel);
+        location = SwingUtilities.convertPoint(centerPanel, location, this);
+        // System.out.println(location);
+        CARD_DECK_X = (int)(location.getX() + 1);
+        CARD_DECK_Y = (int)(location.getY() - 15);
 
         playerPanel.setPreferredSize(new Dimension(newWidth, (int) (newHeight * 0.40)));
         playerPanel.resize(newWidth, (int) (newHeight * 0.40));
@@ -200,6 +187,7 @@ public class GamePanel extends JPanel implements ActionListener {
         Graphics2D g2D = (Graphics2D) g;
         if(timer.isRunning()){
             g2D.drawImage(cardBackImg.getImage(), x, y, null);
+            // g2D.drawImage(cardBackImg.getImage(), CARD_DECK_X, CARD_DECK_Y, null);
         }
     }
 
@@ -279,8 +267,7 @@ public class GamePanel extends JPanel implements ActionListener {
     // DISPLAY FUNCTIONS
     public void display() { // main display method
         leftCenter.removeAll();
-        deckCountLabel.setText("");
-        deckCountLabel.setText("Number of cards: " + cardDeck.getSize());
+        deckPanel.updateDeckNum(cardDeck.getSize());
         playerPanel.attachCards();
         for (int i = 0; i < players.length; i++) {
             if (players[i].isBot()) {
@@ -363,15 +350,15 @@ public class GamePanel extends JPanel implements ActionListener {
                 }
             }
 
-            String msg = "";
+            String msg = mainName;
             if ((isReplyYes && hasCard) || (!isReplyYes && !hasCard)) {
-                msg = "Thanks for your honesty!";
+                msg += ": Thanks for your honesty!";
                 playerDialogWindow.setTitleText(msg, mainColor);
             } else if (!isReplyYes && hasCard) {
-                msg = "Dont lie to me... ";
+                msg += ": Don't lie to me!!!";
                 playerDialogWindow.setTitleText(msg, mainColor);
             } else if (isReplyClicked && !hasCard) {
-                msg = "You dont have that card";
+                msg += ": You don't have that card!!!";
                 playerDialogWindow.setTitleText(msg, mainColor);
             }
             playerDialogWindow.hideBtns();

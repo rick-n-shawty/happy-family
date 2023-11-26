@@ -3,7 +3,6 @@ import GUI.GamePanel;
 import GUI.MyFrame;
 import java.security.SecureRandom;
 
-import javax.swing.JFrame;
 
 import assets.Const;
 public class Game {
@@ -12,8 +11,6 @@ public class Game {
     private Player[] players;
     private int CurrentPlayerId = 0; // tracks the player whose turn it is
     private SecureRandom randomFn = new SecureRandom();
-    String reset = "\u001B[0m";
-    String red = "\u001B[31m";   
     private MyFrame frame;
     private GamePanel gamePanel;
     private Player askedPlayer;
@@ -47,16 +44,17 @@ public class Game {
         cardDeck.shuffleDeck();
         dealCards();
         gamePanel.display();
-        String playerToAsk; // id of the player who will be asked
+        String playerToAsk;
         String chosenCard;
         Player currentPlayer;
         Card askedCard;
-        Card wantedCard; 
+        Card receivedCard; 
         Player winner; 
         boolean tie;
         boolean playAgain; 
 
         while(!isGameOver){
+            gamePanel.display();
             isGameOver = gameOver();
             tie = isTie();
             if(isGameOver && !tie){
@@ -88,8 +86,7 @@ public class Game {
                 }
                 // check if player being asked has the card 
                 if(askedPlayer.hasCard(chosenCard)){
-                    // take the card from the player 
-                    // animate the card 
+                    // take the card from the player and animate it
                     gamePanel.dealCard(askedPlayer, currentPlayer);
                     while(gamePanel.isTimerRunning()){
                         // wait for animation 
@@ -111,24 +108,28 @@ public class Game {
                     gamePanel.display();
                     Card drawnCard = cardDeck.popTheCard();
                     currentPlayer.setCard(drawnCard);
-                    chosenCard = chosenCard.toLowerCase().replaceAll(Const.myRegex, "");
-                    
-                    if(drawnCard.toString().equals(chosenCard)){
-                        // if player got a card they asked for, they get a second turn 
-                        gamePanel.displayLuckyDip(currentPlayer.getColor());
-                        CurrentPlayerId = 0;
-                    }else{
-                        CurrentPlayerId++;
-                    }
-                    if(currentPlayer.getFamilyFound()){
+                    chosenCard = Const.convertToLower(chosenCard);
+
+                    if(drawnCard.comparison(chosenCard) && currentPlayer.getFamilyFound()){
+                        // display happy family 
                         gamePanel.displayHappyFamily(currentPlayer.getColor());
+                    }else if(drawnCard.comparison(chosenCard) && !currentPlayer.getFamilyFound()){
+                        // lucky dip 
+                        gamePanel.displayLuckyDip(currentPlayer.getColor());
+                    }else if(!drawnCard.comparison(chosenCard) && currentPlayer.getFamilyFound()){
+                        // did not get the desired card but collected another family 
+                        gamePanel.displayHappyFamily(currentPlayer.getColor());
+                    }else if(!drawnCard.comparison(chosenCard) && !currentPlayer.getFamilyFound()){
+                        // did not get desired card and did not colllect a family 
+                        CurrentPlayerId++; 
                     }
+
                 }
 
             }else{
                 currentPlayer = players[CurrentPlayerId];
                 // pick a player randomly 
-                int randomIndex = randomFn.nextInt(0,players.length); 
+                int randomIndex = randomFn.nextInt(0,players.length);
                 if(randomIndex == currentPlayer.getId()){
                     randomIndex = randomFn.nextInt(currentPlayer.getId()); 
                     askedPlayer = players[randomIndex];
@@ -138,39 +139,68 @@ public class Game {
                 chosenCard = currentPlayer.getChosenCard(); 
                 gamePanel.display();
                 gamePanel.displayBotInput(currentPlayer, askedPlayer, chosenCard);
+
                 if(askedPlayer.hasCard(chosenCard)){
                     gamePanel.dealCard(askedPlayer, currentPlayer);
                     while (gamePanel.isTimerRunning()) {
                         // wait
                     }
-                    wantedCard = askedPlayer.getCard(chosenCard);
-                    currentPlayer.setCard(wantedCard);
+                    receivedCard = askedPlayer.getCard(chosenCard);
+                    currentPlayer.setCard(receivedCard);
+                    if(currentPlayer.getFamilyFound()){
+                        gamePanel.displayHappyFamily(currentPlayer.getColor());
+                    }
                 }else{
                     gamePanel.dealCard(currentPlayer);
                     while (gamePanel.isTimerRunning()) {
                         // wait
                     }
-                    wantedCard = cardDeck.popTheCard();
-                    currentPlayer.setCard(wantedCard);
-                    if(!wantedCard.comparison(chosenCard)){
+                    receivedCard = cardDeck.popTheCard();
+                    currentPlayer.setCard(receivedCard);
+
+                    // if(receivedCard.comparison(chosenCard)){
+                    //     if(currentPlayer.getFamilyFound()){
+                    //         gamePanel.displayHappyFamily(currentPlayer.getColor());;
+                    //     }else{
+                    //         gamePanel.displayLuckyDip(currentPlayer.getColor());
+                    //     }
+                    // }else{
+                    //     if(currentPlayer.getFamilyFound()){
+                    //         gamePanel.displayHappyFamily(currentPlayer.getColor());
+                    //     }else{
+                    //         if(CurrentPlayerId == players.length - 1){
+                    //             CurrentPlayerId = 0;
+                    //         }else{
+                    //             CurrentPlayerId++;
+                    //         }
+                    //     }
+                    // }
+
+                    if(!receivedCard.comparison(chosenCard) && currentPlayer.getFamilyFound()){
+                        // did not get desired card but collected a family 
+                        gamePanel.displayHappyFamily(currentPlayer.getColor());
+                    }else if(!receivedCard.comparison(chosenCard) && !currentPlayer.getFamilyFound()){
+                        // did not get desired card and did not collect a family 
                         if(CurrentPlayerId == players.length - 1){
                             CurrentPlayerId = 0;
                         }else{
                             CurrentPlayerId++;
                         }
-                    }else{
-                        // if the drawn card was the wanted card 
+                    }else if(receivedCard.comparison(chosenCard) && currentPlayer.getFamilyFound()){
+                        // got the right card and collected a family 
+                        gamePanel.displayHappyFamily(currentPlayer.getColor());
+                    }else if(receivedCard.comparison(chosenCard) && !currentPlayer.getFamilyFound()){
+                        // got the right card but did not collect a family 
                         gamePanel.displayLuckyDip(currentPlayer.getColor());
                     }
                 }
-
+                
             }
         }   
     }
     public boolean isInputValid(Player currentPlayer, String playerName, String cardName){
         // check the spelling of the card 
         String finalCardName = Const.convertToLower(cardName); 
-        System.out.println("input: " + finalCardName);
         if(!cardDeck.isValidCard(finalCardName)){
             ErrorMessage = "Invalid card name"; 
             return false;
@@ -178,6 +208,9 @@ public class Game {
         // check if player is allowed to request that card 
         if(!currentPlayer.hasFamily(finalCardName)){
             ErrorMessage = "You don't have a card from that family to ask for " + cardName; 
+            return false;
+        }else if(currentPlayer.hasCard(finalCardName)){
+            ErrorMessage = "You already have that card!";
             return false;
         }
 
@@ -219,12 +252,22 @@ public class Game {
         return false; 
     }
     public boolean isTie(){
-        int count = players[0].getCollectedFamilies(); 
-        for(int i = 1; i < players.length; i++){
-            if(players[i].getCollectedFamilies() != count) return false; 
+        int maxCount = 0; 
+        int index = 0; 
+        for(int i = 0; i < players.length; i++){
+            if(players[i].getCollectedFamilies() > maxCount){
+                maxCount = players[i].getCollectedFamilies(); 
+                index = i; 
+            }
         }
-        return true;
-
+        // check if two players collected the same number of cards
+        for(int j = 0; j < players.length; j++){
+            if(j == index) continue; 
+            else if(players[j].getCollectedFamilies() == maxCount){
+                return true;
+            }
+        }
+        return false;
     }
     public void initializeGame(){ 
         for(int i = 0; i < 4; i++){
@@ -250,7 +293,6 @@ public class Game {
                 gamePanel.display();
             }
         }
-        players[0].makeWinner();
     }
 
     public MyFrame getFrame(){

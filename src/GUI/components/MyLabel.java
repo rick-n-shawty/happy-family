@@ -15,4 +15,14 @@ public class MyLabel extends JLabel {
         this.setFont(new Font(Const.FONT_STYLE, Font.BOLD, 13));
         this.setText(text);
     }
+    public MyLabel(){
+        this.setForeground(Const.FONT_COLOR);
+        this.setVisible(true);
+        this.setFont(new Font(Const.FONT_STYLE, Font.BOLD, 13));
+    }
+    public MyLabel(int size){
+        this.setForeground(Const.FONT_COLOR);
+        this.setVisible(true);
+        this.setFont(new Font(Const.FONT_STYLE, Font.BOLD, size));
+    }
 }

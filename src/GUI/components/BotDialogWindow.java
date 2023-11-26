@@ -1,6 +1,8 @@
 package GUI.components;
 
 import java.awt.GridLayout;
+
+import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import java.awt.Color;
 
@@ -14,10 +16,13 @@ public class BotDialogWindow extends JPanel{
         qLabel = new MyLabel(question,16);
         qLabel.setVisible(true); 
         qLabel.setOpaque(true);
+        qLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         aLabel = new MyLabel(answer,16);
         aLabel.setVisible(true);
         aLabel.setOpaque(true);
-        
+        aLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        this.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
         this.setVisible(true);
         this.setLayout(new GridLayout(2, 1));
         this.add(qLabel);

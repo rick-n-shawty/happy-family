@@ -11,7 +11,6 @@ import java.awt.GridBagLayout;
 import java.awt.Point;
 import java.net.URL;
 import java.awt.GridLayout;
-import java.awt.Image;
 
 import GUI.components.MyIcon;
 import GUI.components.MyLabel;

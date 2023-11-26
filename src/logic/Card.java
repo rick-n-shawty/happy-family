@@ -1,4 +1,7 @@
 package logic;
+
+import assets.Const;
+
 public class Card {
     private String family; 
     private String face; 
@@ -8,7 +11,7 @@ public class Card {
     }
     public String toString(){
         String name = this.face + " " + this.family; 
-        String finalName = name.toLowerCase().replaceAll("[,\\s]", "");
+        String finalName = Const.convertToLower(name);
         return finalName;
     }
     public String getFamily(){
@@ -18,7 +21,7 @@ public class Card {
         return this.face; 
     }
     public boolean comparison(String cardName){
-        cardName = cardName.toLowerCase().replaceAll("[,\\s]", "");
+        cardName = Const.convertToLower(cardName);
         return this.toString().equals(cardName);
     }
 }

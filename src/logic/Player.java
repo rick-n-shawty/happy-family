@@ -85,7 +85,6 @@ public class Player {
         // checks if player has the card of a specifc family in their hand 
         for(String key : this.hand.keySet()){
             String subStr = Const.convertToLower(this.hand.get(key).getFamily());
-            System.out.println(subStr);
             if(cardName.contains(subStr)){
                 return true;
             }
@@ -138,6 +137,7 @@ public class Player {
         }else{
             this.familyStackCount.put(card.getFamily(), 1);
         }
+        
         if(this.familyStackCount.get(card.getFamily()) == Const.faces.length){
             // if user collected a full family, remove that family cards from the hand 
             isFamilyFound = true;

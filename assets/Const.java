@@ -9,14 +9,15 @@ public class Const {
     public static final int CARD_ICON_WIDTH = 75; 
     public static final int CARD_ICON_HEIGHT = 110; 
     // panel colors 
-    public static final Color mainPlayerColor = new Color(16,137,146);
+    public static final Color mainPlayerColor = new Color(42, 157, 143);
     public static final Color apricot = new Color(255,206,190);
     public static final Color yellowish = new Color(222, 164, 80);
     // player colors 
-    public static final Color midnightGreen = new Color(9,79,89);
-    public static final Color darkPurple = new Color(95, 2, 58);
-    public static final Color brightPink = new Color(205,44,108);
-    public static final Color[] playerColors = {mainPlayerColor, midnightGreen, darkPurple, brightPink};
+    public static final Color orange = new Color(184, 61, 2);
+    public static final Color purple = new Color(138, 80, 130);
+    public static final Color brightPink = new Color(205,44,108); 
+    public static final Color blue = new Color(37, 66, 82);
+    public static final Color[] playerColors = {mainPlayerColor, orange, brightPink, purple};
 
     public static final String[] faces = {"Mr", "Mrs", "Master", "Miss"};
     public static final String[] families = {
@@ -27,7 +28,7 @@ public class Const {
         "Chip, The Carpenter",
         "Dose, The Doctor",
         "Grits, The Grocer",
-        "Pot, The Painter",
+        "Pots, The Painter",
         "Soot, The Sweep",
         "Tape, The Tailor", 
         "Dip, The Dyer"
